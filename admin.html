@@ -1,0 +1,35 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>لوحة التحكم</title><meta name="robots" content="noindex"><link rel="stylesheet" href="style.css"></head><body>
+<div class="w" id="app"></div><script src="common.js"></script><script>
+const $=s=>document.querySelector(s),A=$('#app');let S,P,tab='dash',ed=null,C=JSON.parse(localStorage.gh||'{"branch":"main"}');
+const sha=async t=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)))].map(b=>b.toString(16).padStart(2,'0')).join('');
+(async()=>{S={...DEF,...await load('settings.json',{})};P=await load('posts.json',[]);theme(S);sessionStorage.ok?app():login()})();
+function login(){A.innerHTML=`<div class="box" style="max-width:380px;margin:80px auto"><h2>🔐 دخول الأدمن</h2><label>الإيميل</label><input id="e" type="email"><label>الباسورد</label><input id="pw" type="password"><br><br><button id="go">دخول</button> <span id="er" style="color:red"></span></div>`;
+$('#go').onclick=async()=>{if(await sha($('#e').value.trim().toLowerCase()+':'+$('#pw').value)==S.adminHash){sessionStorage.ok=1;app()}else $('#er').textContent='بيانات غير صحيحة'}}
+async function gh(path,obj){if(!C.repo||!C.token)throw Error('اضبط إعدادات GitHub أولاً');
+const u=`https://api.github.com/repos/${C.repo}/contents/${path}`,h={Authorization:'Bearer '+C.token,Accept:'application/vnd.github+json'};
+const g=await fetch(u+'?ref='+C.branch,{headers:h});const sha=g.ok?(await g.json()).sha:undefined;
+const r=await fetch(u,{method:'PUT',headers:h,body:JSON.stringify({message:'update '+path,branch:C.branch,sha,content:btoa(unescape(encodeURIComponent(JSON.stringify(obj,null,1))))})});
+if(!r.ok)throw Error((await r.json()).message)}
+async function push(f,o){const m=$('#msg');m.textContent='⏳ جاري النشر...';try{await gh('data/'+f,o);m.textContent='✅ تم الحفظ (يظهر على الموقع خلال دقائق)'}catch(e){m.textContent='❌ '+e.message}}
+function app(){A.innerHTML=`<div class="bar"><h1 class="logo" style="margin:0">⚙️ ${esc(S.name)}</h1><a href="index.html" target="_blank">عرض الموقع ↗</a><button class="s" onclick="sessionStorage.clear();location.reload()">خروج</button></div>
+<div class="tabs">${[['dash','📊 الإحصائيات'],['posts','📰 الأخبار'],['look','🎨 المظهر والقوائم'],['git','🔗 GitHub']].map(t=>`<button class="${tab==t[0]?'':'s'}" onclick="tab='${t[0]}';ed=null;app()">${t[1]}</button>`).join('')}</div><div id="msg" class="m"></div><div id="v"></div>`;({dash,posts,look,git})[tab]()}
+async function dash(){$('#v').innerHTML='جاري التحميل...';const v=await Promise.all(P.map(p=>views(S.ns,p.id)));
+$('#v').innerHTML=`<div class="st"><div><b>${P.length}</b>عدد الأخبار</div><div><b>${v.reduce((a,b)=>a+b,0)}</b>إجمالي المشاهدات</div></div><div class="box"><table><tr><th>الخبر</th><th>المشاهدات</th></tr>${P.map((p,i)=>[p,v[i]]).sort((a,b)=>b[1]-a[1]).map(x=>`<tr><td>${esc(x[0].title)}</td><td>${x[1]}</td></tr>`).join('')}</table></div>`}
+function posts(){if(ed)return form();$('#v').innerHTML=`<button onclick="ed={};app()">➕ خبر جديد</button><div class="box"><table>${P.map(p=>`<tr><td>${esc(p.title)}<br><span class="m">${esc(p.cat)} · ${p.date} ${p.pub===false?'· مسودة':''}</span></td><td><button class="s" onclick="ed=P.find(x=>x.id=='${p.id}');app()">تعديل</button> <button class="r" onclick="del('${p.id}')">حذف</button></td></tr>`).join('')}</table></div>`}
+function form(){const p=ed,f=(i,l,v,t='input')=>`<label>${l}</label><${t} id="${i}" ${t=='input'?`value="${esc(v)}"`:'rows=10'}>${t=='input'?'':esc(v)+'</textarea>'}`;
+$('#v').innerHTML=`<div class="box"><h2>${p.id?'تعديل':'إنشاء'} خبر</h2>${f('t','العنوان',p.title||'')}${f('c','القسم',p.cat||'')}${f('i','رابط الصورة',p.img||'')}${f('sm','وصف مختصر (Meta Description)',p.sum||'')}${f('k','الكلمات البحثية (افصل بفاصلة)',p.kw||'')}${f('b','نص الخبر (سطر فارغ = فقرة جديدة)',p.body||'','textarea')}<label><input type="checkbox" id="pub" style="width:auto" ${p.pub===false?'':'checked'}> نشر</label><br><button onclick="savePost()">💾 حفظ ونشر</button> <button class="s" onclick="ed=null;app()">رجوع</button></div>`}
+function savePost(){const p={id:ed.id||Date.now().toString(36),title:$('#t').value,cat:$('#c').value,img:$('#i').value,sum:$('#sm').value,kw:$('#k').value,body:$('#b').value,pub:$('#pub').checked,date:ed.date||new Date().toISOString().slice(0,10)};
+const i=P.findIndex(x=>x.id==p.id);i<0?P.unshift(p):P[i]=p;ed=null;app();push('posts.json',P)}
+function del(id){if(confirm('حذف الخبر؟')){P=P.filter(p=>p.id!=id);app();push('posts.json',P)}}
+function look(){const f=(i,l,v,t='text')=>`<label>${l}</label><input id="${i}" type="${t}" value="${esc(v)}">`;
+$('#v').innerHTML=`<div class="box">${f('n','اسم الموقع',S.name)}${f('tg','الشعار الفرعي',S.tagline)}${f('ht','عنوان الواجهة',S.heroTitle)}${f('pr','اللون الأساسي',S.primary,'color')}${f('ac','لون التمييز',S.accent,'color')}${f('bg','لون الخلفية',S.bg,'color')}${f('dk','لون الهيدر/الفوتر',S.dark,'color')}
+<label>الخط</label><select id="fo">${['Cairo','Tajawal','Almarai','Noto Kufi Arabic','Amiri'].map(x=>`<option ${x==S.font?'selected':''}>${x}</option>`).join('')}</select>
+<label>القائمة (كل سطر: العنوان|القسم — القسم فارغ للرئيسية)</label><textarea id="mn" rows="6">${S.menu.map(m=>m.t+'|'+m.c).join('\n')}</textarea>${f('ft','نص الفوتر',S.footer)}
+<label>CSS مخصص</label><textarea id="cs" rows="5">${esc(S.css)}</textarea>${f('ns','معرّف عدّاد المشاهدات (اجعله فريداً)',S.ns)}
+<h3>تغيير بيانات الدخول (اتركها فارغة لعدم التغيير)</h3>${f('ne','إيميل جديد','','email')}${f('np','باسورد جديد','','password')}<br><button onclick="saveLook()">💾 حفظ ونشر</button></div>`}
+async function saveLook(){Object.assign(S,{name:$('#n').value,tagline:$('#tg').value,heroTitle:$('#ht').value,primary:$('#pr').value,accent:$('#ac').value,bg:$('#bg').value,dark:$('#dk').value,font:$('#fo').value,footer:$('#ft').value,css:$('#cs').value,ns:$('#ns').value,
+menu:$('#mn').value.split('\n').filter(Boolean).map(l=>{const[t,c]=l.split('|');return{t:t.trim(),c:(c||'').trim()}})});
+if($('#ne').value&&$('#np').value)S.adminHash=await sha($('#ne').value.trim().toLowerCase()+':'+$('#np').value);push('settings.json',S)}
+function git(){$('#v').innerHTML=`<div class="box"><p class="m">يُحفظ التوكن في متصفحك فقط ولا يُرفع للمستودع. أنشئ Fine-grained token بصلاحية Contents: Read and write على المستودع.</p><label>المستودع (user/repo)</label><input id="r" value="${C.repo||''}"><label>الفرع</label><input id="br" value="${C.branch}"><label>GitHub Token</label><input id="tk" type="password" value="${C.token||''}"><br><br><button onclick="C={repo:r.value.trim(),branch:br.value.trim(),token:tk.value.trim()};localStorage.gh=JSON.stringify(C);$('#msg').textContent='✅ تم الحفظ'">حفظ</button></div>`}
+</script></body></html>

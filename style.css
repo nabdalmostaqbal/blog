@@ -1,0 +1,20 @@
+:root{--p:#0b5fff;--a:#ff3d57;--bg:#f5f7fb;--d:#0f172a}
+*{box-sizing:border-box}body{margin:0;font-family:var(--f,Cairo),Tahoma,sans-serif;background:var(--bg);color:var(--d);line-height:1.8}
+a{color:inherit;text-decoration:none}.w{max-width:1100px;margin:auto;padding:0 16px}
+header{background:var(--d);color:#fff;position:sticky;top:0;z-index:5}
+.bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 0}
+.logo{font-size:1.6rem;font-weight:800}.logo b{color:var(--a)}
+nav{display:flex;gap:4px;flex:1;flex-wrap:wrap}nav a{padding:4px 12px;border-radius:8px}nav a:hover{background:var(--p)}
+input,textarea,select,button{font:inherit;padding:8px 12px;border:1px solid #cbd5e1;border-radius:8px;width:100%}
+header input{width:180px}button{width:auto;background:var(--p);color:#fff;border:0;cursor:pointer}
+button.s{background:#64748b}button.r{background:var(--a)}
+.hero{background:linear-gradient(135deg,var(--p),var(--d));color:#fff;padding:36px 0;text-align:center}.hero h1{margin:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;margin:24px 0}
+.card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 10px #0001;transition:.2s}.card:hover{transform:translateY(-4px)}
+.card img{width:100%;height:170px;object-fit:cover;background:#dbe3f0;display:block}.card div{padding:14px}.card h3{margin:4px 0}
+.tag{color:var(--a);font-size:.8rem;font-weight:700}.m{color:#64748b;font-size:.85rem}
+article{background:#fff;padding:24px;border-radius:14px;margin:24px 0}article img{max-width:100%;border-radius:12px}
+footer{background:var(--d);color:#cbd5e1;text-align:center;padding:20px;margin-top:40px}
+.box{background:#fff;padding:18px;border-radius:14px;margin:16px 0}label{display:block;margin:10px 0 4px;font-weight:700}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:16px 0}table{width:100%;border-collapse:collapse}td,th{padding:8px;border-bottom:1px solid #e2e8f0;text-align:right}
+.st{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}.st div{background:#fff;padding:16px;border-radius:12px;text-align:center}.st b{font-size:1.8rem;color:var(--p);display:block}

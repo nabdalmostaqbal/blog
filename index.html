@@ -1,0 +1,24 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>نبض المستقبل</title><meta name="description" id="md"><meta name="keywords" id="mk"><link rel="stylesheet" href="style.css"></head><body>
+<header><div class="w bar"><a class="logo" id="logo" href="#"></a><nav id="nav"></nav><input id="q" placeholder="🔍 بحث..."></div></header>
+<div class="hero"><div class="w"><h1 id="ht"></h1><div id="tg"></div></div></div>
+<main class="w" id="app"></main><footer id="ft"></footer>
+<script src="common.js"></script><script>
+const $=s=>document.querySelector(s);let S,P;
+(async()=>{S={...DEF,...await load('settings.json',{})};P=(await load('posts.json',[])).filter(p=>p.pub!==false).sort((a,b)=>b.date.localeCompare(a.date));
+theme(S);const n=S.name.split(' ');$('#logo').innerHTML=esc(n[0])+(n[1]?' <b>'+esc(n.slice(1).join(' '))+'</b>':'');
+$('#nav').innerHTML=S.menu.map(m=>`<a href="${m.c?'#c='+encodeURIComponent(m.c):'#'}">${esc(m.t)}</a>`).join('');
+$('#ht').textContent=S.heroTitle;$('#tg').textContent=S.tagline;$('#ft').textContent=S.footer;
+$('#q').onkeydown=e=>{if(e.key=='Enter')location.hash='q='+encodeURIComponent(e.target.value)};
+addEventListener('hashchange',route);route()})();
+const card=p=>`<a class="card" href="#p=${p.id}"><img loading="lazy" src="${esc(p.img)}" alt=""><div><span class="tag">${esc(p.cat)}</span><h3>${esc(p.title)}</h3><p class="m">${esc(p.sum)}</p><span class="m">${p.date}</span></div></a>`;
+async function route(){const h=new URLSearchParams(location.hash.slice(1)),A=$('#app');scrollTo(0,0);document.title=S.name;
+if(h.get('p')){const p=P.find(x=>x.id==h.get('p'));if(!p){A.innerHTML='<article>الخبر غير موجود</article>';return}
+document.title=p.title+' | '+S.name;$('#md').content=p.sum||'';$('#mk').content=p.kw||'';
+const body=esc(p.body).split(/\n\s*\n/).map(x=>'<p>'+x.replace(/\n/g,'<br>')+'</p>').join('');
+A.innerHTML=`<article><span class="tag">${esc(p.cat)}</span><h1>${esc(p.title)}</h1><p class="m">${p.date} · 👁 <span id="vw">…</span> مشاهدة</p>${p.img?`<img src="${esc(p.img)}" alt="">`:''}${body}<p class="m">${(p.kw||'').split(',').filter(Boolean).map(k=>'#'+esc(k.trim())).join(' ')}</p></article><h2>أخبار ذات صلة</h2><div class="grid">${P.filter(x=>x.cat==p.cat&&x.id!=p.id).slice(0,3).map(card).join('')}</div>`;
+const k='v'+p.id,first=!sessionStorage[k];sessionStorage[k]=1;$('#vw').textContent=await views(S.ns,p.id,first);return}
+let l=P,t='أحدث الأخبار';if(h.get('c')){l=P.filter(p=>p.cat==h.get('c'));t=h.get('c')}
+if(h.get('q')){const q=h.get('q').toLowerCase();l=P.filter(p=>(p.title+p.sum+p.kw+p.body).toLowerCase().includes(q));t='نتائج: '+q}
+A.innerHTML=`<h2>${esc(t)}</h2><div class="grid">${l.map(card).join('')||'<p>لا توجد أخبار بعد.</p>'}</div>`}
+</script></body></html>
