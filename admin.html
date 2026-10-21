@@ -6,11 +6,11 @@ const sha=async t=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new T
 (async()=>{S={...DEF,...await load('settings.json',{})};P=await load('posts.json',[]);theme(S);sessionStorage.ok?app():login()})();
 function login(){A.innerHTML=`<div class="box" style="max-width:380px;margin:80px auto"><h2>🔐 دخول الأدمن</h2><label>الإيميل</label><input id="e" type="email"><label>الباسورد</label><input id="pw" type="password"><br><br><button id="go">دخول</button> <span id="er" style="color:red"></span></div>`;
 $('#go').onclick=async()=>{if(await sha($('#e').value.trim().toLowerCase()+':'+$('#pw').value)==S.adminHash){sessionStorage.ok=1;app()}else $('#er').textContent='بيانات غير صحيحة'}}
-async function gh(path,obj){if(!C.repo||!C.token)throw Error('اضبط إعدادات GitHub أولاً');
+async function gh(path,obj,n=0){if(!C.repo||!C.token)throw Error('اضبط إعدادات GitHub أولاً');
 const u=`https://api.github.com/repos/${C.repo}/contents/${path}`,h={Authorization:'Bearer '+C.token,Accept:'application/vnd.github+json'};
-const g=await fetch(u+'?ref='+C.branch,{headers:h});const sha=g.ok?(await g.json()).sha:undefined;
+const g=await fetch(u+'?ref='+C.branch+'&t='+Date.now(),{headers:h,cache:'no-store'});const sha=g.ok?(await g.json()).sha:undefined;
 const r=await fetch(u,{method:'PUT',headers:h,body:JSON.stringify({message:'update '+path,branch:C.branch,sha,content:btoa(unescape(encodeURIComponent(JSON.stringify(obj,null,1))))})});
-if(!r.ok)throw Error((await r.json()).message)}
+if(!r.ok){const e=await r.json();if(r.status==409&&n<3){await new Promise(x=>setTimeout(x,1000));return gh(path,obj,n+1)}throw Error(e.message)}}
 async function push(f,o){const m=$('#msg');m.textContent='⏳ جاري النشر...';try{await gh('data/'+f,o);m.textContent='✅ تم الحفظ (يظهر على الموقع خلال دقائق)'}catch(e){m.textContent='❌ '+e.message}}
 function app(){A.innerHTML=`<div class="bar"><h1 class="logo" style="margin:0">⚙️ ${esc(S.name)}</h1><a href="index.html" target="_blank">عرض الموقع ↗</a><button class="s" onclick="sessionStorage.clear();location.reload()">خروج</button></div>
 <div class="tabs">${[['dash','📊 الإحصائيات'],['posts','📰 الأخبار'],['look','🎨 المظهر والقوائم'],['git','🔗 GitHub']].map(t=>`<button class="${tab==t[0]?'':'s'}" onclick="tab='${t[0]}';ed=null;app()">${t[1]}</button>`).join('')}</div><div id="msg" class="m"></div><div id="v"></div>`;({dash,posts,look,git})[tab]()}
