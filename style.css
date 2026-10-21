@@ -18,3 +18,16 @@ footer{background:var(--d);color:#cbd5e1;text-align:center;padding:20px;margin-t
 .box{background:#fff;padding:18px;border-radius:14px;margin:16px 0}label{display:block;margin:10px 0 4px;font-weight:700}
 .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:16px 0}table{width:100%;border-collapse:collapse}td,th{padding:8px;border-bottom:1px solid #e2e8f0;text-align:right}
 .st{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}.st div{background:#fff;padding:16px;border-radius:12px;text-align:center}.st b{font-size:1.8rem;color:var(--p);display:block}
+@media(max-width:700px){
+.bar{gap:8px;padding:8px 0}
+.logo{order:1;font-size:1.3rem}
+header input{order:2;flex:1;width:auto;min-width:0;padding:6px 10px}
+nav{order:3;flex:0 0 100%;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
+nav::-webkit-scrollbar{display:none}
+nav a{white-space:nowrap;flex:none}
+.hero{padding:22px 0}.hero h1{font-size:1.5rem}
+article{padding:16px}article h1{font-size:1.4rem}
+.box{overflow-x:auto;padding:14px}
+.grid{grid-template-columns:1fr;gap:14px}
+.tabs button{flex:1 1 45%}
+}
