@@ -23,10 +23,14 @@
   {
    "t": "رياضة",
    "c": "رياضة"
+  },
+  {
+   "t": "التكنولوجيا",
+   "c": "التكنولوجيا"
   }
  ],
  "footer": "© نبض المستقبل - جميع الحقوق محفوظة",
  "ns": "nabd-almustaqbal-x7k",
  "css": "",
- "adminHash": "2435da3725c6d499c5afc665a13fefd452922020cbad06f69a4a69278c826eb5"
+ "adminHash": "b3a1ec146ebecda58685f8eb1300c75ac589c307fd0c7a6e8c665faac00f341b"
 }
